@@ -39,7 +39,8 @@ public class Consumer implements Runnable {
 
     public Consumer(MessageReceiver messageReceiver, HermesMetrics hermesMetrics, Subscription subscription,
                     ConsumerRateLimiter rateLimiter, SubscriptionOffsetCommitQueues subscriptionOffsetCommitQueues,
-                    ConsumerMessageSender sender, Semaphore inflightSemaphore, Trackers trackers, MessageConverter messageConverter, Topic topic) {
+                    ConsumerMessageSender sender, Semaphore inflightSemaphore, Trackers trackers,
+                    MessageConverter messageConverter, Topic topic) {
         this.messageReceiver = messageReceiver;
         this.hermesMetrics = hermesMetrics;
         this.subscription = subscription;

@@ -2,6 +2,7 @@ package pl.allegro.tech.hermes.infrastructure.zookeeper;
 
 import com.google.common.base.Joiner;
 import pl.allegro.tech.hermes.api.Subscription;
+import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.api.TopicName;
 
 public class ZookeeperPaths {
@@ -62,6 +63,10 @@ public class ZookeeperPaths {
 
     public String subscriptionPath(Subscription subscription) {
         return subscriptionPath(subscription.getTopicName(), subscription.getName());
+    }
+
+    public String subscriptionHealthPath(SubscriptionName subscription) {
+        return Joiner.on(URL_SEPARATOR).join(subscriptionPath(subscription.getTopicName(), subscription.getName()), "health");
     }
 
     public String subscriptionMetricsPath(TopicName topicName, String subscriptionName) {

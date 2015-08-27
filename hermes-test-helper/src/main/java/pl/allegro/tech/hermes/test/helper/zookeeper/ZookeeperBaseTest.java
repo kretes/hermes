@@ -58,4 +58,10 @@ public abstract class ZookeeperBaseTest {
         zookeeperClient.delete().guaranteed().deletingChildrenIfNeeded().forPath("/hermes");
     }
 
+    public void createPath(String path) throws Exception {
+        if (zookeeperClient.checkExists().forPath(path) == null) {
+            zookeeperClient.create().creatingParentsIfNeeded().forPath(path);
+        }
+    }
+
 }

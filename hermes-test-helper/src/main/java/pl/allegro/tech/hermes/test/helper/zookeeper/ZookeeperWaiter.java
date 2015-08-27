@@ -35,6 +35,10 @@ public class ZookeeperWaiter {
         await().atMost(2, TimeUnit.SECONDS).until(() -> zookeeper.getData().forPath(path) != null);
     }
 
+    public void untilZookeeperPathIsNotEmpty(final String path) {
+        await().atMost(2, TimeUnit.SECONDS).until(() -> !zookeeper.getChildren().forPath(path).isEmpty());
+    }
+
     public void untilZookeeperPathIsEmpty(final String path) {
         await().atMost(2, TimeUnit.SECONDS).until(() -> zookeeper.getChildren().forPath(path).isEmpty());
     }
