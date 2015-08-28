@@ -20,4 +20,8 @@ public class SubscriptionName {
     public TopicName getTopicName() {
         return topicName;
     }
+
+    public static SubscriptionName from(Subscription subscription) {
+        return new SubscriptionName(subscription.getName(), subscription.getTopicName());
+    }
 }

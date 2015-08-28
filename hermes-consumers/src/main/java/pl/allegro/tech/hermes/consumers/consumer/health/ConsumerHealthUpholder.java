@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.common.time.Clock;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
 import pl.allegro.tech.hermes.infrastructure.zookeeper.ZookeeperPaths;
 
 import java.io.IOException;
@@ -18,13 +17,14 @@ public class ConsumerHealthUpholder {
     private final PersistentEphemeralNode ephemeralNode;
     private final SubscriptionName subscriptionName;
 
-    public ConsumerHealthUpholder(CuratorFramework curatorFramework, ZookeeperPaths zookeeperPaths, SubscriptionName subscriptionName, HostnameResolver hostnameResolver, Clock clock) throws Exception {
+    public ConsumerHealthUpholder(CuratorFramework curatorFramework, ZookeeperPaths zookeeperPaths, SubscriptionName subscriptionName,
+                                  Clock clock, String hostname) throws Exception {
         this.subscriptionName = subscriptionName;
 
         ephemeralNode = new PersistentEphemeralNode(
             curatorFramework,
             PersistentEphemeralNode.Mode.EPHEMERAL,
-            zookeeperPaths.subscriptionHealthPath(subscriptionName) + "/" + consumerNodeName(hostnameResolver.resolve(), clock.getTime()),
+            zookeeperPaths.subscriptionHealthPath(subscriptionName) + "/" + consumerNodeName(hostname, clock.getTime()),
             "alive".getBytes()
         );
     }

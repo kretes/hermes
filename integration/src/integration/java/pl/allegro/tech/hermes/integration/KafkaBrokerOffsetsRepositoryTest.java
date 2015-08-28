@@ -6,16 +6,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pl.allegro.tech.hermes.api.Subscription;
 import pl.allegro.tech.hermes.common.kafka.KafkaNamesMapper;
-import pl.allegro.tech.hermes.consumers.consumer.offset.kafka.broker.BlockingChannelFactory;
 import pl.allegro.tech.hermes.common.time.SystemClock;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
+import pl.allegro.tech.hermes.consumers.consumer.offset.kafka.broker.BlockingChannelFactory;
 import pl.allegro.tech.hermes.consumers.consumer.offset.kafka.broker.BrokerOffsetsRepository;
 import pl.allegro.tech.hermes.domain.subscription.offset.PartitionOffset;
 import pl.allegro.tech.hermes.integration.env.SharedServices;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class KafkaBrokerOffsetsRepositoryTest extends IntegrationTest {
 
@@ -36,9 +33,6 @@ public class KafkaBrokerOffsetsRepositoryTest extends IntegrationTest {
     public void setUp() throws Exception {
         subscription = new Subscription.Builder().withTopicName(groupName, topicName).withName(subscriptionName).build();
 
-        HostnameResolver hostnameResolver = mock(HostnameResolver.class);
-        when(hostnameResolver.resolve()).thenReturn(kafkaHost);
-
         KafkaConfig kafkaConfig = SharedServices.services().kafkaStarter().instance().serverConfig();
         kafkaPort = kafkaConfig.port();
 
@@ -47,7 +41,7 @@ public class KafkaBrokerOffsetsRepositoryTest extends IntegrationTest {
         wait.waitUntilConsumerMetadataAvailable(subscription, kafkaHost, kafkaPort);
 
         blockingChannelFactory = new BlockingChannelFactory(HostAndPort.fromParts(kafkaHost, kafkaPort), readTimeout);
-        offsetStorage = new BrokerOffsetsRepository(blockingChannelFactory, new SystemClock(), hostnameResolver, new KafkaNamesMapper(KAFKA_NAMESPACE), channelExpTime);
+        offsetStorage = new BrokerOffsetsRepository(blockingChannelFactory, new SystemClock(), kafkaHost, new KafkaNamesMapper(KAFKA_NAMESPACE), channelExpTime);
     }
 
     @Test

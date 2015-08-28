@@ -1,4 +1,4 @@
-package pl.allegro.tech.hermes.common.util;
+package pl.allegro.tech.hermes.common.hostname;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -20,11 +20,11 @@ import pl.allegro.tech.hermes.common.config.Configs;
 import pl.allegro.tech.hermes.common.kafka.ConsumerGroupId;
 import pl.allegro.tech.hermes.common.kafka.KafkaNamesMapper;
 import pl.allegro.tech.hermes.common.time.Clock;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.kafka.broker.CannotCommitOffsetToBrokerException;
 import pl.allegro.tech.hermes.domain.subscription.offset.PartitionOffset;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,19 +46,19 @@ public class BrokerOffsetsRepository {
     private final String clientId;
 
     @Inject
-    public BrokerOffsetsRepository(BlockingChannelFactory blockingChannelFactory, Clock clock, HostnameResolver hostnameResolver,
+    public BrokerOffsetsRepository(BlockingChannelFactory blockingChannelFactory, Clock clock, @Named("hostname") String hostname,
                                ConfigFactory configFactory, KafkaNamesMapper kafkaNamesMapper) {
-        this(blockingChannelFactory, clock, hostnameResolver, kafkaNamesMapper,
+        this(blockingChannelFactory, clock, hostname, kafkaNamesMapper,
                 configFactory.getIntProperty(Configs.KAFKA_CONSUMER_OFFSET_COMMITTER_BROKER_CONNECTION_EXPIRATION)
         );
     }
 
-    public BrokerOffsetsRepository(BlockingChannelFactory blockingChannelFactory, Clock clock, HostnameResolver hostnameResolver,
+    public BrokerOffsetsRepository(BlockingChannelFactory blockingChannelFactory, Clock clock, String hostname,
                                    KafkaNamesMapper kafkaNamesMapper, int channelExpTime) {
         this.blockingChannelFactory = blockingChannelFactory;
         this.clock = clock;
         this.kafkaNamesMapper = kafkaNamesMapper;
-        this.clientId = clientId(hostnameResolver);
+        this.clientId = clientId(hostname);
 
         channels = CacheBuilder.newBuilder()
                 .expireAfterAccess(channelExpTime, TimeUnit.SECONDS)
@@ -135,7 +135,7 @@ public class BrokerOffsetsRepository {
         return offset.offset();
     }
 
-    private String clientId(HostnameResolver hostnameResolver) {
-        return hostnameResolver.resolve() + "_" + UUID.randomUUID();
+    private String clientId(String hostname) {
+        return hostname + "_" + UUID.randomUUID();
     }
 }

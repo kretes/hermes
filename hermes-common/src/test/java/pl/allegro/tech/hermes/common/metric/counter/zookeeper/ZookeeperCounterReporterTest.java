@@ -14,9 +14,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import pl.allegro.tech.hermes.api.TopicName;
 import pl.allegro.tech.hermes.common.config.ConfigFactory;
 import pl.allegro.tech.hermes.common.config.Configs;
-import pl.allegro.tech.hermes.metrics.PathsCompiler;
 import pl.allegro.tech.hermes.common.metric.counter.CounterStorage;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
+import pl.allegro.tech.hermes.metrics.PathsCompiler;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -67,8 +66,7 @@ public class ZookeeperCounterReporterTest {
     @Mock
     private ConfigFactory configFactory;
 
-    @Mock
-    private HostnameResolver hostnameResolver;
+    private String hostname = "localhost.domain";
 
     private ZookeeperCounterReporter zookeeperCounterReporter;
 
@@ -77,8 +75,7 @@ public class ZookeeperCounterReporterTest {
     @Before
     public void before() {
         when(configFactory.getStringProperty(Configs.GRAPHITE_PREFIX)).thenReturn(GRAPHITE_PREFIX);
-        when(hostnameResolver.resolve()).thenReturn("localhost.domain");
-        zookeeperCounterReporter = new ZookeeperCounterReporter(metricRegistry, counterStorage, hostnameResolver, configFactory);
+        zookeeperCounterReporter = new ZookeeperCounterReporter(metricRegistry, counterStorage, hostname, configFactory);
     }
 
     @Test

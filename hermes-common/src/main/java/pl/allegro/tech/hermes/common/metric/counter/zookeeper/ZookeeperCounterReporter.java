@@ -14,7 +14,6 @@ import pl.allegro.tech.hermes.common.config.ConfigFactory;
 import pl.allegro.tech.hermes.common.config.Configs;
 import pl.allegro.tech.hermes.common.metric.HermesMetrics;
 import pl.allegro.tech.hermes.common.metric.counter.CounterStorage;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
 
 import java.util.Map;
 import java.util.SortedMap;
@@ -29,11 +28,11 @@ public class ZookeeperCounterReporter extends ScheduledReporter {
     private static final TimeUnit DURATION_UNIT = TimeUnit.MILLISECONDS;
 
     private final CounterStorage counterStorage;
-    private final HostnameResolver hostnameResolver;
+    private final String hostname;
 
     public ZookeeperCounterReporter(MetricRegistry registry,
                                     CounterStorage counterStorage,
-                                    HostnameResolver hostnameResolver,
+                                    String hostname,
                                     ConfigFactory config) {
         super(
                 registry,
@@ -43,7 +42,7 @@ public class ZookeeperCounterReporter extends ScheduledReporter {
                 DURATION_UNIT
         );
         this.counterStorage = counterStorage;
-        this.hostnameResolver = hostnameResolver;
+        this.hostname = hostname;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class ZookeeperCounterReporter extends ScheduledReporter {
             return;
         }
 
-        CounterMatcher matcher = new CounterMatcher(counterName, hostnameResolver.resolve());
+        CounterMatcher matcher = new CounterMatcher(counterName, hostname);
         long value = counter.getCount();
 
         if (matcher.isSubscriptionInflight()) {

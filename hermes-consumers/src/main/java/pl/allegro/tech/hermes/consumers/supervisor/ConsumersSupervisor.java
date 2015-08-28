@@ -185,7 +185,7 @@ public class ConsumersSupervisor implements SubscriptionCallback, AdminOperation
         undeliveredMessageLogPersister.shutdown();
     }
 
-    private void createAndExecuteConsumerIfNotExists(Subscription subscription) {
+    private void createAndExecuteConsumerIfNotExists(Subscription subscription) throws Exception {
             if (consumerHolder.contains(subscription.getTopicName(), subscription.getName())) {
                 LOGGER.warn("Consumer for {} already exists, ignoring", subscription.getId());
             } else {
@@ -213,7 +213,7 @@ public class ConsumersSupervisor implements SubscriptionCallback, AdminOperation
         }
     }
 
-    private void createAndExecuteConsumer(Subscription subscription) {
+    private void createAndExecuteConsumer(Subscription subscription) throws Exception {
         LOGGER.info("Creating consumer for {}", subscription.getId());
         Consumer consumer = consumerFactory.createConsumer(subscription);
         consumerHolder.add(subscription.getTopicName(), subscription.getName(), consumer);

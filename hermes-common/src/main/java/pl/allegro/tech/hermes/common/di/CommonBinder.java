@@ -23,6 +23,7 @@ import pl.allegro.tech.hermes.common.di.factories.SubscriptionOffsetChangeIndica
 import pl.allegro.tech.hermes.common.di.factories.SubscriptionRepositoryFactory;
 import pl.allegro.tech.hermes.common.di.factories.TopicRepositoryFactory;
 import pl.allegro.tech.hermes.common.di.factories.ZookeeperPathsFactory;
+import pl.allegro.tech.hermes.common.hostname.HostnameFactory;
 import pl.allegro.tech.hermes.common.kafka.KafkaNamesMapperFactory;
 import pl.allegro.tech.hermes.common.message.wrapper.AvroMessageContentWrapper;
 import pl.allegro.tech.hermes.common.message.wrapper.JsonMessageContentWrapper;
@@ -32,8 +33,8 @@ import pl.allegro.tech.hermes.common.metric.counter.CounterStorage;
 import pl.allegro.tech.hermes.common.metric.counter.zookeeper.ZookeeperCounterStorage;
 import pl.allegro.tech.hermes.common.time.Clock;
 import pl.allegro.tech.hermes.common.time.SystemClock;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
-import pl.allegro.tech.hermes.common.util.InetAddressHostnameResolver;
+import pl.allegro.tech.hermes.common.hostname.HostnameResolver;
+import pl.allegro.tech.hermes.common.hostname.InetAddressHostnameResolver;
 import pl.allegro.tech.hermes.domain.topic.schema.SchemaRepository;
 import pl.allegro.tech.hermes.infrastructure.schema.AvroSchemaRepositoryFactory;
 import pl.allegro.tech.hermes.infrastructure.schema.JsonSchemaRepositoryFactory;
@@ -51,6 +52,7 @@ public class CommonBinder extends AbstractBinder {
         bind(SystemClock.class).to(Clock.class).in(Singleton.class);
         bind(ZookeeperBrokerStorage.class).to(BrokerStorage.class).in(Singleton.class);
         bind(InetAddressHostnameResolver.class).in(Singleton.class).to(HostnameResolver.class);
+        bindSingletonFactory(HostnameFactory.class).named("hostname");
         bindSingletonFactory(SchemaSourceProviderFactory.class);
         bindFactory(JsonSchemaRepositoryFactory.class).in(Singleton.class).to(new TypeLiteral<SchemaRepository<JsonSchema>>() {});
         bindFactory(AvroSchemaRepositoryFactory.class).in(Singleton.class).to(new TypeLiteral<SchemaRepository<Schema>>() {});

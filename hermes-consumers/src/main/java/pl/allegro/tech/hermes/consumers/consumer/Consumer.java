@@ -7,6 +7,7 @@ import pl.allegro.tech.hermes.api.Subscription;
 import pl.allegro.tech.hermes.api.Topic;
 import pl.allegro.tech.hermes.common.metric.HermesMetrics;
 import pl.allegro.tech.hermes.consumers.consumer.converter.MessageConverter;
+import pl.allegro.tech.hermes.consumers.consumer.health.ConsumerHealthUpholder;
 import pl.allegro.tech.hermes.consumers.consumer.offset.SubscriptionOffsetCommitQueues;
 import pl.allegro.tech.hermes.consumers.consumer.rate.ConsumerRateLimiter;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.MessageReceiver;
@@ -31,6 +32,7 @@ public class Consumer implements Runnable {
     private final Trackers trackers;
     private final MessageConverter messageConverter;
     private final Topic topic;
+    private final ConsumerHealthUpholder healthUpholder;
     private final ConsumerMessageSender sender;
 
     private Subscription subscription;
@@ -40,7 +42,7 @@ public class Consumer implements Runnable {
     public Consumer(MessageReceiver messageReceiver, HermesMetrics hermesMetrics, Subscription subscription,
                     ConsumerRateLimiter rateLimiter, SubscriptionOffsetCommitQueues subscriptionOffsetCommitQueues,
                     ConsumerMessageSender sender, Semaphore inflightSemaphore, Trackers trackers,
-                    MessageConverter messageConverter, Topic topic) {
+                    MessageConverter messageConverter, Topic topic, ConsumerHealthUpholder healthUpholder) {
         this.messageReceiver = messageReceiver;
         this.hermesMetrics = hermesMetrics;
         this.subscription = subscription;
@@ -51,6 +53,7 @@ public class Consumer implements Runnable {
         this.trackers = trackers;
         this.messageConverter = messageConverter;
         this.topic = topic;
+        this.healthUpholder = healthUpholder;
     }
 
     private String getId() {
@@ -61,6 +64,7 @@ public class Consumer implements Runnable {
     public void run() {
         setThreadName();
         rateLimiter.initialize();
+        healthUpholder.start();
         while (isConsuming()) {
             try {
                 inflightSemaphore.acquire();
@@ -79,6 +83,7 @@ public class Consumer implements Runnable {
         }
         logger.info("Stopping consumer for subscription {}", subscription.getId());
         messageReceiver.stop();
+        healthUpholder.stop();
     }
 
     private void sendMessage(Message message) {

@@ -14,6 +14,7 @@ import pl.allegro.tech.hermes.common.config.Configs;
 import pl.allegro.tech.hermes.common.message.undelivered.UndeliveredMessageLog;
 import pl.allegro.tech.hermes.common.metric.HermesMetrics;
 import pl.allegro.tech.hermes.consumers.consumer.converter.NoOperationMessageConverter;
+import pl.allegro.tech.hermes.consumers.consumer.health.ConsumerHealthUpholder;
 import pl.allegro.tech.hermes.consumers.consumer.offset.SubscriptionOffsetCommitQueues;
 import pl.allegro.tech.hermes.consumers.consumer.rate.ConsumerRateLimiter;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.MessageReceiver;
@@ -74,7 +75,10 @@ public class ConsumerTest {
     private ListenableFuture<MessageSendingResult> messageSendingResult;
 
     @Mock
-    Semaphore infligtSemaphore;
+    private Semaphore infligtSemaphore;
+
+    @Mock
+    private ConsumerHealthUpholder healthUpholder;
 
     @Mock
     private  ConsumerMessageSender sender;
@@ -87,7 +91,7 @@ public class ConsumerTest {
         when(configFactory.getIntProperty(Configs.REPORT_PERIOD)).thenReturn(10);
         when(configFactory.getIntProperty(Configs.CONSUMER_INFLIGHT_SIZE)).thenReturn(50);
         consumer = spy(new Consumer(messageReceiver, hermesMetrics, SUBSCRIPTION,
-                consumerRateLimiter, partitionOffsetHelper, sender, infligtSemaphore, trackers, new NoOperationMessageConverter(), TOPIC));
+                consumerRateLimiter, partitionOffsetHelper, sender, infligtSemaphore, trackers, new NoOperationMessageConverter(), TOPIC, healthUpholder));
     }
 
     @Test

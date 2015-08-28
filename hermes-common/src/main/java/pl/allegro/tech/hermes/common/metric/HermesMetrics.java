@@ -16,11 +16,11 @@ import pl.allegro.tech.hermes.common.config.Configs;
 import pl.allegro.tech.hermes.common.metric.counter.CounterStorage;
 import pl.allegro.tech.hermes.common.metric.counter.zookeeper.ZookeeperCounterReporter;
 import pl.allegro.tech.hermes.common.metric.timer.ConsumerLatencyTimer;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
 import pl.allegro.tech.hermes.metrics.PathContext;
 import pl.allegro.tech.hermes.metrics.PathsCompiler;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +38,7 @@ public class HermesMetrics {
     private final MetricRegistry metricRegistry;
     private final CounterStorage counterStorage;
     private final PathsCompiler pathCompiler;
-    private final HostnameResolver hostnameResolver;
+    private final String hostname;
 
     @Inject
     public HermesMetrics(
@@ -46,13 +46,13 @@ public class HermesMetrics {
             MetricRegistry metricRegistry,
             CounterStorage counterStorage,
             PathsCompiler pathCompiler,
-            HostnameResolver hostnameResolver) throws Exception {
+            @Named("hostname")String hostname) throws Exception {
 
         this.configFactory = configFactory;
         this.metricRegistry = metricRegistry;
         this.counterStorage = counterStorage;
         this.pathCompiler = pathCompiler;
-        this.hostnameResolver = hostnameResolver;
+        this.hostname = hostname;
 
         prepareReporters();
     }
@@ -75,7 +75,7 @@ public class HermesMetrics {
         }
 
         if (configFactory.getBooleanProperty(Configs.METRICS_ZOOKEEPER_REPORTER)) {
-            new ZookeeperCounterReporter(metricRegistry, counterStorage, hostnameResolver, configFactory).start(
+            new ZookeeperCounterReporter(metricRegistry, counterStorage, hostname, configFactory).start(
                     configFactory.getIntProperty(Configs.REPORT_PERIOD),
                     TimeUnit.SECONDS
             );

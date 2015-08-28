@@ -10,6 +10,7 @@ import pl.allegro.tech.hermes.common.metric.executor.InstrumentedExecutorService
 import pl.allegro.tech.hermes.consumers.consumer.ConsumerMessageSenderFactory;
 import pl.allegro.tech.hermes.consumers.consumer.converter.MessageConverterFactory;
 import pl.allegro.tech.hermes.consumers.consumer.converter.schema.AvroSchemaRepositoryMetadataAware;
+import pl.allegro.tech.hermes.consumers.consumer.health.ConsumerHealthUpholderFactory;
 import pl.allegro.tech.hermes.consumers.consumer.interpolation.MessageBodyInterpolator;
 import pl.allegro.tech.hermes.consumers.consumer.interpolation.UriInterpolator;
 import pl.allegro.tech.hermes.consumers.consumer.offset.OffsetsStorage;
@@ -74,6 +75,7 @@ public class ConsumersBinder extends AbstractBinder {
         bindSingleton(ConsumerMessageSenderFactory.class);
         bindSingleton(MessageConverterFactory.class);
         bindSingleton(AvroSchemaRepositoryMetadataAware.class);
+        bindSingleton(ConsumerHealthUpholderFactory.class);
 
         bindSingleton(BlockingChannelFactory.class);
         bindFactory(OffsetStoragesFactory.class).in(Singleton.class).to(new TypeLiteral<List<OffsetsStorage>>() {

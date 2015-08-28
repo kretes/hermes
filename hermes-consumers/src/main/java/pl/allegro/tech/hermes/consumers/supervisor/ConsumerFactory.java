@@ -1,6 +1,7 @@
 package pl.allegro.tech.hermes.consumers.supervisor;
 
 import pl.allegro.tech.hermes.api.Subscription;
+import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.api.Topic;
 import pl.allegro.tech.hermes.common.config.ConfigFactory;
 import pl.allegro.tech.hermes.common.metric.HermesMetrics;
@@ -8,6 +9,8 @@ import pl.allegro.tech.hermes.common.time.Clock;
 import pl.allegro.tech.hermes.consumers.consumer.Consumer;
 import pl.allegro.tech.hermes.consumers.consumer.ConsumerMessageSenderFactory;
 import pl.allegro.tech.hermes.consumers.consumer.converter.MessageConverterFactory;
+import pl.allegro.tech.hermes.consumers.consumer.health.ConsumerHealthUpholder;
+import pl.allegro.tech.hermes.consumers.consumer.health.ConsumerHealthUpholderFactory;
 import pl.allegro.tech.hermes.consumers.consumer.offset.SubscriptionOffsetCommitQueues;
 import pl.allegro.tech.hermes.consumers.consumer.rate.ConsumerRateLimitSupervisor;
 import pl.allegro.tech.hermes.consumers.consumer.rate.ConsumerRateLimiter;
@@ -33,6 +36,7 @@ public class ConsumerFactory {
     private final Clock clock;
     private final TopicRepository topicRepository;
     private final MessageConverterFactory messageConverterFactory;
+    private final ConsumerHealthUpholderFactory consumerHealthUpholderFactory;
 
     @Inject
     public ConsumerFactory(ReceiverFactory messageReceiverFactory,
@@ -44,7 +48,8 @@ public class ConsumerFactory {
             ConsumerMessageSenderFactory consumerMessageSenderFactory,
             Clock clock,
             TopicRepository topicRepository,
-            MessageConverterFactory messageConverterFactory) {
+            MessageConverterFactory messageConverterFactory,
+            ConsumerHealthUpholderFactory consumerHealthUpholderFactory) {
 
         this.messageReceiverFactory = messageReceiverFactory;
         this.hermesMetrics = hermesMetrics;
@@ -56,9 +61,10 @@ public class ConsumerFactory {
         this.clock = clock;
         this.topicRepository = topicRepository;
         this.messageConverterFactory = messageConverterFactory;
+        this.consumerHealthUpholderFactory = consumerHealthUpholderFactory;
     }
 
-    Consumer createConsumer(Subscription subscription) {
+    Consumer createConsumer(Subscription subscription) throws Exception {
         SubscriptionOffsetCommitQueues subscriptionOffsetCommitQueues = new SubscriptionOffsetCommitQueues(
                 subscription, hermesMetrics, clock, configFactory);
 
@@ -68,6 +74,8 @@ public class ConsumerFactory {
         Semaphore inflightSemaphore = new Semaphore(configFactory.getIntProperty(CONSUMER_INFLIGHT_SIZE));
 
         Topic topic = topicRepository.getTopicDetails(subscription.getTopicName());
+
+        ConsumerHealthUpholder healthUpholder = consumerHealthUpholderFactory.create(SubscriptionName.from(subscription));
 
         return new Consumer(
             messageReceiverFactory.createMessageReceiver(topic, subscription),
@@ -79,7 +87,8 @@ public class ConsumerFactory {
             inflightSemaphore,
             trackers,
             messageConverterFactory.create(topic.getContentType()),
-            topic);
+            topic,
+            healthUpholder);
     }
 
 }

@@ -87,7 +87,7 @@ public class ConsumersSupervisorTest {
     private ExecutorService executor = Executors.newFixedThreadPool(50);
 
     @Before
-    public void before() {
+    public void before() throws Exception {
         when(consumerFactory.createConsumer(any(Subscription.class))).thenReturn(consumer);
 
         consumersSupervisor = new ConsumersSupervisor(configFactory, subscriptionRepository,
@@ -165,7 +165,7 @@ public class ConsumersSupervisorTest {
     }
 
     @Test
-    public void shouldCreateConsumerOnResume() {
+    public void shouldCreateConsumerOnResume() throws Exception {
         Subscription subscription = createSubscription(SOME_TOPIC_NAME, "sub1", ACTIVE);
 
         consumersSupervisor.onSubscriptionChanged(subscription);
@@ -218,7 +218,7 @@ public class ConsumersSupervisorTest {
     }
 
     @Test
-    public void shouldNotExecuteConsumerWhenCreatingFails() {
+    public void shouldNotExecuteConsumerWhenCreatingFails() throws Exception {
         when(consumerFactory.createConsumer(any(Subscription.class))).thenThrow(
                 new EndpointProtocolNotSupportedException(EndpointAddress.of("xyz://localhost:8080/test"))
         );
@@ -229,7 +229,7 @@ public class ConsumersSupervisorTest {
     }
 
     @Test
-    public void shouldUpdateConsumerSubscription() {
+    public void shouldUpdateConsumerSubscription() throws Exception {
         // given
         final Subscription oldSubscription = createSubscription(SOME_TOPIC_NAME, SOME_SUBSCRIPTION_NAME);
         Subscription newSubscription = createSubscription(SOME_TOPIC_NAME, SOME_SUBSCRIPTION_NAME);
@@ -255,7 +255,7 @@ public class ConsumersSupervisorTest {
     }
 
     @Test
-    public void shouldNotCreateSecondConsumerOnDuplicatedEvent() throws InterruptedException {
+    public void shouldNotCreateSecondConsumerOnDuplicatedEvent() throws Exception {
         // given
         final Subscription subscription = createSubscription(SOME_TOPIC_NAME, "sub1", PENDING);
         final CountDownLatch latch = new CountDownLatch(100);

@@ -8,7 +8,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.api.TopicName;
 import pl.allegro.tech.hermes.common.time.Clock;
-import pl.allegro.tech.hermes.common.util.HostnameResolver;
 import pl.allegro.tech.hermes.infrastructure.zookeeper.ZookeeperPaths;
 import pl.allegro.tech.hermes.test.helper.zookeeper.ZookeeperBaseTest;
 
@@ -20,8 +19,7 @@ public class ConsumerHealthUpholderTest extends ZookeeperBaseTest {
     @Mock
     private Clock clock;
 
-    @Mock
-    private HostnameResolver hostnameResolver;
+    private String hostname = "hostname";
 
     private ZookeeperPaths zookeeperPaths = new ZookeeperPaths("/hermes");
 
@@ -36,10 +34,9 @@ public class ConsumerHealthUpholderTest extends ZookeeperBaseTest {
     @Test
     public void shouldUpholdConsumerHealth() throws Exception {
         // given
-        when(hostnameResolver.resolve()).thenReturn("hostname");
         when(clock.getTime()).thenReturn(5L);
         ConsumerHealthUpholder consumerHealthUpholder = new ConsumerHealthUpholder(
-            zookeeperClient, zookeeperPaths, subscriptionName, hostnameResolver, clock
+            zookeeperClient, zookeeperPaths, subscriptionName, clock, hostname
         );
 
         // when
@@ -56,7 +53,7 @@ public class ConsumerHealthUpholderTest extends ZookeeperBaseTest {
     public void shouldRemoveNodeAfterStoppingHealthUpholder() throws Exception {
         // given
         ConsumerHealthUpholder consumerHealthUpholder = new ConsumerHealthUpholder(
-            zookeeperClient, zookeeperPaths, subscriptionName, hostnameResolver, clock);
+            zookeeperClient, zookeeperPaths, subscriptionName, clock, hostname);
         consumerHealthUpholder.start();
         wait.untilZookeeperPathIsNotEmpty(zookeeperPaths.subscriptionHealthPath(subscriptionName));
 
