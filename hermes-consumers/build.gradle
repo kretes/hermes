@@ -13,6 +13,8 @@ dependencies {
         exclude module: 'hornetq-native'
     }
 
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '0.8.3-SNAPSHOT'
+
     testCompile project(':hermes-test-helper')
     testCompile group: 'org.apache.curator', name: 'curator-test', version: versions.curator
     testCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.1'

@@ -21,6 +21,7 @@ import pl.allegro.tech.hermes.consumers.consumer.rate.ConsumerRateLimitSuperviso
 import pl.allegro.tech.hermes.consumers.consumer.rate.calculator.OutputRateCalculator;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.MessageCommitter;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.ReceiverFactory;
+import pl.allegro.tech.hermes.consumers.consumer.receiver.kafka.KafkaConsumerFactory;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.kafka.KafkaMessageReceiverFactory;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.kafka.MessageCommitterFactory;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.kafka.OffsetStoragesFactory;
@@ -52,6 +53,7 @@ public class ConsumersBinder extends AbstractBinder {
         bindSingleton(HealthCheckServer.class);
 
         bind(KafkaMessageReceiverFactory.class).in(Singleton.class).to(ReceiverFactory.class);
+        bind(KafkaConsumerFactory.class).in(Singleton.class).to(KafkaConsumerFactory.class);
         bindSingleton(BrokerOffsetsRepository.class);
         bind(ZookeeperOffsetsStorage.class).in(Singleton.class).to(OffsetsStorage.class).named("zookeeperOffsetsStorage");
         bind(KafkaOffsetsStorage.class).in(Singleton.class).to(OffsetsStorage.class).named("kafkaOffsetsStorage");

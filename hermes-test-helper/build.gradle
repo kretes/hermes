@@ -13,6 +13,7 @@ dependencies {
         exclude group: 'net.sf.jopt-simple'
         exclude module: 'slf4j-log4j12'
         exclude module: 'log4j'
+        exclude module: 'kafka-clients'
     }
     compile(group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wiremock) {
         exclude group: 'org.mortbay.jetty', module: 'servlet-api'

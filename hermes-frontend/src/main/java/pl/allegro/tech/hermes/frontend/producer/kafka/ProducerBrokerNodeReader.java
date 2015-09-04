@@ -2,7 +2,7 @@ package pl.allegro.tech.hermes.frontend.producer.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.internals.Metadata;
+//import org.apache.kafka.clients.producer.internals.Metadata;
 import org.apache.kafka.common.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,8 @@ public class ProducerBrokerNodeReader {
             try {
                 Field field = KafkaProducer.class.getDeclaredField("metadata");
                 field.setAccessible(true);
-                Metadata metadata = (Metadata) field.get(kafkaProducer);
-                return metadata.fetch().nodes();
+//                Metadata metadata = (Metadata) field.get(kafkaProducer);
+//                return metadata.fetch().nodes();
             } catch (Exception e) {
                 LOGGER.error("Could not read broker node list from producer.", e);
             }

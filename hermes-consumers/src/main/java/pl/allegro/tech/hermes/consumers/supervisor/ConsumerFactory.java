@@ -1,5 +1,6 @@
 package pl.allegro.tech.hermes.consumers.supervisor;
 
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import pl.allegro.tech.hermes.api.Subscription;
 import pl.allegro.tech.hermes.api.Topic;
 import pl.allegro.tech.hermes.common.config.ConfigFactory;

@@ -1,7 +1,5 @@
 package pl.allegro.tech.hermes.consumers.consumer.receiver.kafka;
 
-import kafka.consumer.Consumer;
-import kafka.consumer.ConsumerConfig;
 import pl.allegro.tech.hermes.api.Subscription;
 import pl.allegro.tech.hermes.api.Topic;
 import pl.allegro.tech.hermes.common.config.ConfigFactory;
@@ -25,49 +23,49 @@ public class KafkaMessageReceiverFactory implements ReceiverFactory {
     private final HermesMetrics hermesMetrics;
     private final Clock clock;
     private final KafkaNamesMapper kafkaNamesMapper;
+    private final KafkaConsumerFactory kafkaConsumerFactory;
 
     @Inject
     public KafkaMessageReceiverFactory(ConfigFactory configFactory, MessageContentWrapper messageContentWrapper,
-                                       HermesMetrics hermesMetrics, Clock clock, KafkaNamesMapper kafkaNamesMapper) {
+                                       HermesMetrics hermesMetrics, Clock clock, KafkaNamesMapper kafkaNamesMapper, KafkaConsumerFactory kafkaConsumerFactory) {
         this.configFactory = configFactory;
         this.messageContentWrapper = messageContentWrapper;
         this.hermesMetrics = hermesMetrics;
         this.clock = clock;
         this.kafkaNamesMapper = kafkaNamesMapper;
+        this.kafkaConsumerFactory = kafkaConsumerFactory;
     }
 
     @Override
     public MessageReceiver createMessageReceiver(Topic receivingTopic, Subscription subscription) {
-        return create(receivingTopic, createConsumerConfig(kafkaNamesMapper.toConsumerGroupId(subscription)));
+        return createKafkaConsumerMessageReceiver(receivingTopic, subscription);
     }
 
-    MessageReceiver create(Topic receivingTopic, ConsumerConfig consumerConfig) {
-        return new KafkaMessageReceiver(
+    MessageReceiver createKafkaConsumerMessageReceiver(Topic receivingTopic, Subscription subscription) {
+        Properties consumerConfig = createConsumerProperties(kafkaNamesMapper.toConsumerGroupId(subscription));
+        return new KafkaConsumerMessageReceiver(
+                kafkaConsumerFactory.create(consumerConfig),
                 receivingTopic,
-                Consumer.createJavaConsumerConnector(consumerConfig),
                 messageContentWrapper,
                 hermesMetrics.timer(Timers.CONSUMER_READ_LATENCY),
-                clock,
-                kafkaNamesMapper,
-                configFactory.getIntProperty(Configs.KAFKA_STREAM_COUNT));
+                clock);
     }
 
-    private ConsumerConfig createConsumerConfig(ConsumerGroupId groupId) {
+    private Properties createConsumerProperties(ConsumerGroupId groupId) {
         Properties props = new Properties();
 
         props.put("group.id", groupId.asString());
-        props.put("zookeeper.connect", configFactory.getStringProperty(Configs.KAFKA_ZOOKEEPER_CONNECT_STRING));
-        props.put("zookeeper.connection.timeout.ms", configFactory.getIntPropertyAsString(Configs.ZOOKEEPER_CONNECTION_TIMEOUT));
-        props.put("zookeeper.session.timeout.ms", configFactory.getIntPropertyAsString(Configs.ZOOKEEPER_SESSION_TIMEOUT));
-        props.put("zookeeper.sync.time.ms", configFactory.getIntPropertyAsString(Configs.ZOOKEEPER_SYNC_TIME));
-        props.put("auto.commit.enable", "false");
-        props.put("fetch.wait.max.ms", "10000");
-        props.put("consumer.timeout.ms", configFactory.getIntPropertyAsString(Configs.KAFKA_CONSUMER_TIMEOUT_MS));
-        props.put("auto.offset.reset", configFactory.getStringProperty(Configs.KAFKA_CONSUMER_AUTO_OFFSET_RESET));
-        props.put("offsets.storage", configFactory.getStringProperty(Configs.KAFKA_CONSUMER_OFFSETS_STORAGE));
-        props.put("dual.commit.enabled", Boolean.toString(configFactory.getBooleanProperty(Configs.KAFKA_CONSUMER_DUAL_COMMIT_ENABLED)));
+        props.put("enable.auto.commit", false);
+        props.put("session.timeout.ms", configFactory.getIntProperty(Configs.KAFKA_CONSUMER_TIMEOUT_MS));
+        props.put("fetch.min.bytes", configFactory.getIntProperty(Configs.KAFKA_CONSUMER_FETCH_MIN_BYTES));
+        props.put("fetch.max.wait.ms", configFactory.getIntProperty(Configs.KAFKA_CONSUMER_FETCH_MAX_WAIT_MS));
+        props.put("max.partition.fetch.bytes", configFactory.getIntProperty(Configs.KAFKA_CONSUMER_MAX_PARTITION_FETCH_BYTES));
+        props.put("auto.offset.reset", "latest");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        props.put("bootstrap.servers", configFactory.getStringProperty(Configs.KAFKA_BROKER_LIST));
 
-        return new ConsumerConfig(props);
+        return props;
     }
 
 }

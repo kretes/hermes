@@ -45,6 +45,7 @@ dependencies {
         exclude group: 'net.sf.jopt-simple'
         exclude module: 'slf4j-log4j12'
         exclude module: 'log4j'
+        exclude module: 'kafka-clients'
     }
 
     testCompile project(':hermes-test-helper')

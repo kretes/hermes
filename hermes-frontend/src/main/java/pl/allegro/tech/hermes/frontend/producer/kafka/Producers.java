@@ -54,11 +54,11 @@ public class Producers {
     }
 
     private void registerLatencyPerBrokerGauge(HermesMetrics metrics) {
-        List<Node> brokers = ProducerBrokerNodeReader.read(leaderConfirms);
-        registerLatencyPerBrokerGauge(everyoneConfirms, metrics, "request-latency-avg", "everyone-confirms", brokers);
-        registerLatencyPerBrokerGauge(leaderConfirms, metrics, "request-latency-avg", "leader-confirms", brokers);
-        registerLatencyPerBrokerGauge(everyoneConfirms, metrics, "request-latency-max", "everyone-confirms", brokers);
-        registerLatencyPerBrokerGauge(leaderConfirms, metrics, "request-latency-max", "leader-confirms", brokers);
+//        List<Node> brokers = ProducerBrokerNodeReader.read(leaderConfirms);
+//        registerLatencyPerBrokerGauge(everyoneConfirms, metrics, "request-latency-avg", "everyone-confirms", brokers);
+//        registerLatencyPerBrokerGauge(leaderConfirms, metrics, "request-latency-avg", "leader-confirms", brokers);
+//        registerLatencyPerBrokerGauge(everyoneConfirms, metrics, "request-latency-max", "everyone-confirms", brokers);
+//        registerLatencyPerBrokerGauge(leaderConfirms, metrics, "request-latency-max", "leader-confirms", brokers);
     }
 
     private void registerCompressionRateGauge(Producer<byte[], byte[]> producer, HermesMetrics metrics, String gauge) {
