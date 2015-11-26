@@ -1,5 +1,7 @@
 package pl.allegro.tech.hermes.consumers.supervisor.workload.selective;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.consumers.supervisor.workload.SubscriptionAssignmentView;
 
@@ -10,6 +12,9 @@ import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
 public class SelectiveWorkBalancer {
+
+    private static final Logger logger = LoggerFactory.getLogger(SelectiveWorkBalancer.class);
+
     private final int consumersPerSubscription;
     private final int maxSubscriptionsPerConsumer;
 
@@ -22,12 +27,19 @@ public class SelectiveWorkBalancer {
                                 List<String> activeConsumerNodes,
                                 SubscriptionAssignmentView currentState) {
 
+        logger.debug("Current state, assignments total: {}", currentState.getAllAssignments().size());
+        currentState.getConsumerNodes().forEach(nodeId -> logger.debug("Before:: Consumer {} assigned {} times", nodeId, currentState.getAssignmentsCountForConsumerNode(nodeId)));
+
         List<SubscriptionName> removedSubscriptions = findRemovedSubscriptions(currentState, subscriptions);
         List<String> inactiveConsumers = findInactiveConsumers(currentState, activeConsumerNodes);
         List<SubscriptionName> newSubscriptions = findNewSubscriptions(currentState, subscriptions);
         List<String> newConsumers = findNewConsumers(currentState, activeConsumerNodes);
 
         SubscriptionAssignmentView balancedState = balance(currentState, removedSubscriptions, inactiveConsumers, newSubscriptions, newConsumers);
+
+        logger.debug("Balanced state, assignments total: {}", currentState.getAllAssignments().size());
+        currentState.getConsumerNodes().forEach(nodeId -> logger.debug("After:: Consumer {} assigned {} times", nodeId, currentState.getAssignmentsCountForConsumerNode(nodeId)));
+
         return new WorkBalancingResult.Builder(balancedState)
                 .withSubscriptionsStats(subscriptions.size(), removedSubscriptions.size(), newSubscriptions.size())
                 .withConsumersStats(activeConsumerNodes.size(), inactiveConsumers.size(), newConsumers.size())

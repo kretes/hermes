@@ -53,6 +53,7 @@ public class BalancingJob implements LeaderLatchListener, Runnable {
                 WorkBalancingResult work = workBalancer.balance(subscriptionsCache.listActiveSubscriptionNames(),
                         consumersRegistry.list(),
                         workTracker.getAssignments());
+                logger.debug("Workload balance done, applying changes");
                 WorkTracker.WorkDistributionChanges changes = workTracker.apply(work.getAssignmentsView());
                 logger.info("Finished workload balance {}, {}", work.toString(), changes.toString());
                 metrics.reportConsumersWorkloadStats(kafkaCluster, work.getMissingResources(), changes.getDeletedAssignmentsCount(), changes.getCreatedAssignmentsCount());

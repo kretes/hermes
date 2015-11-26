@@ -3,6 +3,8 @@ package pl.allegro.tech.hermes.consumers.supervisor.workload;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.allegro.tech.hermes.api.Subscription;
 import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.common.cache.zookeeper.NodeCache;
@@ -21,6 +23,8 @@ import static org.apache.zookeeper.CreateMode.EPHEMERAL;
 import static org.apache.zookeeper.CreateMode.PERSISTENT;
 
 public class WorkTracker extends NodeCache<SubscriptionAssignmentAware, SubscriptionAssignmentRegistry> {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkTracker.class);
     private final SubscriptionRepository subscriptionRepository;
     private final String consumerNodeId;
     private final SubscriptionAssignmentPathSerializer pathSerializer;
@@ -49,6 +53,7 @@ public WorkTracker(CuratorFramework curatorClient,
         try {
             task.run();
         } catch (KeeperException.NodeExistsException | KeeperException.NoNodeException ex) {
+            logger.debug("An exception occurred during assignments modification: {}", ex.getMessage());
             // ignore
         } catch (Exception ex) {
             throw new InternalProcessingException(ex);
